@@ -35,7 +35,6 @@ var mdTmpl = `
 {{if .Title}}## {{.Title}}
 {{end -}}
 {{range .Elem}}{{elem $.Template .}}{{end}}
-
 ---{{- end}}
 
 {{define "list" -}}
