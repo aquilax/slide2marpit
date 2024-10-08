@@ -33,6 +33,7 @@ var mdTmpl = `
 
 {{define "section"}}
 {{if .Title}}## {{.Title}}
+
 {{end -}}
 {{range .Elem}}{{elem $.Template .}}{{end}}
 ---{{- end}}
