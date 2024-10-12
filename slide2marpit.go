@@ -14,6 +14,7 @@ const (
 	KW_IFRAME     = ".iframe"
 	KW_BACKGROUND = ".background"
 	KW_LINK       = ".link"
+	KW_CAPTION    = ".caption"
 )
 
 var imageRegex = regexp.MustCompile(`\` + KW_IMAGE + `\s+(\S+)(\s+([\d_]+)%?)?(\s+([\d_]+)%?)?`)
@@ -82,6 +83,12 @@ func Convert(input io.Reader, output io.Writer) error {
 			continue
 		}
 
+		// Handle .caption syntax
+		if strings.HasPrefix(line, KW_CAPTION) {
+			fmt.Fprintln(output, handleCaption(line))
+			continue
+		}
+
 		// Handle normal Markdown content
 		fmt.Fprintln(output, line)
 	}
@@ -90,10 +97,6 @@ func Convert(input io.Reader, output io.Writer) error {
 		return errors.Join(errors.New("error reading input file"), err)
 	}
 	return nil
-}
-
-func removePrefix(line string, prefix string) string {
-	return strings.TrimSpace(line[len(prefix):])
 }
 
 func handleLink(line string) string {
@@ -105,13 +108,17 @@ func handleLink(line string) string {
 	return ""
 }
 
+func handleCaption(line string) string {
+	return strings.TrimPrefix(line, KW_CAPTION)
+}
+
 func handleIFrame(line string) string {
-	src := removePrefix(line, KW_IFRAME)
+	src := strings.TrimPrefix(line, KW_IFRAME)
 	return fmt.Sprintf(`<iframe src="%s"></iframe>`, src)
 }
 
 func handleBackground(line string) string {
-	image := removePrefix(line, KW_BACKGROUND)
+	image := strings.TrimPrefix(line, KW_BACKGROUND)
 	return fmt.Sprintf("![bg](%s)", image)
 }
 
