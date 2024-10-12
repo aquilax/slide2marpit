@@ -10,11 +10,14 @@ import (
 )
 
 const (
-	KW_IMAGE      = ".image"
-	KW_IFRAME     = ".iframe"
-	KW_BACKGROUND = ".background"
-	KW_LINK       = ".link"
-	KW_CAPTION    = ".caption"
+	KW_IMAGE         = ".image"
+	KW_IFRAME        = ".iframe"
+	KW_BACKGROUND    = ".background"
+	KW_LINK          = ".link"
+	KW_CAPTION       = ".caption"
+	KW_COMMENT       = "// "
+	KW_SPEAKER_NOTES = ": "
+	KW_SLIDE_HEADING = "## "
 )
 
 var imageRegex = regexp.MustCompile(`\` + KW_IMAGE + `\s+(\S+)(\s+([\d_]+)%?)?(\s+([\d_]+)%?)?`)
@@ -46,7 +49,7 @@ func Convert(input io.Reader, output io.Writer) error {
 		}
 
 		// Handle slides
-		if strings.HasPrefix(line, "## ") {
+		if strings.HasPrefix(line, KW_SLIDE_HEADING) {
 			fmt.Fprintln(output, "---")
 			fmt.Fprintln(output)
 			fmt.Fprintln(output, line)
@@ -54,8 +57,8 @@ func Convert(input io.Reader, output io.Writer) error {
 		}
 
 		// Handle presenter notes
-		if strings.HasPrefix(line, ": ") {
-			fmt.Fprintln(output, "<!--", strings.TrimPrefix(line, ": "), "-->")
+		if strings.HasPrefix(line, KW_SPEAKER_NOTES) {
+			fmt.Fprintln(output, "<!--", strings.TrimPrefix(line, KW_SPEAKER_NOTES), "-->")
 			continue
 		}
 
@@ -86,6 +89,11 @@ func Convert(input io.Reader, output io.Writer) error {
 		// Handle .caption syntax
 		if strings.HasPrefix(line, KW_CAPTION) {
 			fmt.Fprintln(output, handleCaption(line))
+			continue
+		}
+
+		// Handle comments syntax
+		if strings.HasPrefix(line, KW_COMMENT) {
 			continue
 		}
 
